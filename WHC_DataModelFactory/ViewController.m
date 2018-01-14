@@ -35,11 +35,11 @@
 #import "WHC_AutoLayout.h"
 
 
-#define kWHC_DEFAULT_CLASS_NAME @("WHC")
-#define kWHC_CLASS       @("\n@interface %@ :NSObject\n%@\n@end\n")
-#define kWHC_CodingCLASS       @("\n@interface %@ :NSObject <NSCoding>\n%@\n@end\n")
-#define kWHC_CopyingCLASS       @("\n@interface %@ :NSObject <NSCopying>\n%@\n@end\n")
-#define kWHC_CodingAndCopyingCLASS       @("\n@interface %@ :NSObject <NSCoding,NSCopying>\n%@\n@end\n")
+#define kWHC_DEFAULT_CLASS_NAME @("")
+#define kWHC_CLASS       @("\n@interface %@: NSObject\n\n%@\n@end\n")
+#define kWHC_CodingCLASS       @("\n@interface %@: NSObject <NSCoding>\n\n%@\n@end\n")
+#define kWHC_CopyingCLASS       @("\n@interface %@: NSObject <NSCopying>\n\n%@\n@end\n")
+#define kWHC_CodingAndCopyingCLASS       @("\n@interface %@: NSObject <NSCoding,NSCopying>\n\n%@\n@end\n")
 
 #define kWHC_PROPERTY(s)    ((s) == 'c' ? @("@property (nonatomic , copy) %@              * %@;\n") : @("@property (nonatomic , strong) %@              * %@;\n"))
 #define kWHC_ASSIGN_PROPERTY    @("@property (nonatomic , assign) %@              %@;\n")
@@ -55,7 +55,7 @@
 
 #define kSWHC_Prefix_Func @("class func prefix() -> String {\n    return \"%@\"\n}\n")
 
-#define kSWHC_CLASS @("\nclass %@ :NSObject {\n%@\n}\n")
+#define kSWHC_CLASS @("\nclass %@: NSObject {\n\n%@\n}\n")
 #define kSexyJson_Class @("\nclass %@: SexyJson {\n%@\n}\n")
 #define kSexyJson_Struct @("\nstruct %@: SexyJson {\n%@\n}\n")
 
@@ -91,18 +91,12 @@ typedef enum : NSUInteger {
 } WHCModelType;
 
 @interface ViewController (){
-    NSMutableString       *   _classString;        //存类头文件内容
-    NSMutableString       *   _classMString;       //存类源文件内容
-    NSString              *   _classPrefixName;    //类前缀
     BOOL                      _didMake;
     BOOL                      _firstLower;         //首字母小写
 }
 @property (weak) IBOutlet NSLayoutConstraint *classMHeightConstraint;
 
 @property (nonatomic , strong)IBOutlet  NSTextField  * classNameField;
-@property (nonatomic , strong)IBOutlet  NSTextView  * jsonField;
-@property (nonatomic , strong)IBOutlet  NSTextView  * classField;
-@property (nonatomic , strong)IBOutlet  NSTextView  * classMField;
 @property (nonatomic , strong)IBOutlet  NSComboBox       * comboBox;
 @property (nonatomic , strong)IBOutlet  NSButton       * codingCheckBox;
 @property (nonatomic , strong)IBOutlet  NSButton       * copyingCheckBox;
@@ -124,8 +118,8 @@ typedef enum : NSUInteger {
     _classMField.editable = NO;
     _firstLower = YES;
 //    NSLayoutConstraintAxis
-    [_checkUpdateButton setContentHuggingPriority:<#(NSLayoutPriority)#> forOrientation:(NSLayoutConstraintOrientation)]
-    [_checkUpdateButton setContentCompressionResistancePriority:<#(NSLayoutPriority)#> forOrientation:(NSLayoutConstraintOrientation)];
+//    [_checkUpdateButton setContentHuggingPriority:(NSLayoutPriority) forOrientation:(NSLayoutConstraintOrientation)]
+//    [_checkUpdateButton setContentCompressionResistancePriority:<#(NSLayoutPriority)#> forOrientation:(NSLayoutConstraintOrientation)];
     // Do any additional setup after loading the view.
     [self setTextViewStyle];
     [self setClassSourceContent:kSourcePlaceholdText];
@@ -136,8 +130,11 @@ typedef enum : NSUInteger {
     
     _comboxTitles = @[@"Objective-c",@"Swift",@"SexyJson(struct)",@"SexyJson(class)"];
     [_comboBox addItemsWithObjectValues:_comboxTitles];
-    [_comboBox selectItemWithObjectValue:@"Objective-c"];
-    
+//    [_comboBox selectItemWithObjectValue:@"Swift"];
+    [_comboBox selectItemAtIndex:1];
+    _index = _comboBox.indexOfSelectedItem;
+    _isSwift = _index != 0;
+    _classMHeightConstraint.constant = (self.isSwift ? 0 : 180);
     
 }
 
@@ -158,17 +155,18 @@ typedef enum : NSUInteger {
     NSString * dateStr = [dateFormatter stringFromDate:date];
     [value appendString:@"\n\n/**\n  * Copyright "];
     [value appendString:[dateStr componentsSeparatedByString:@"-"].firstObject];
-    [value appendString:@" WHC_DataModelFactory\n  * Auto-generated: "];
+    [value appendString:@" Mogo\n  * Auto-generated: "];
     [value appendString:dateStr];
     [value appendString:@"\n  *\n"];
-    [value appendString:@"  * @author netyouli (whc)\n"];
-    [value appendString:@"  * @github https://github.com/netyouli\n  */\n\n\n"];
+    [value appendString:@"  * @author netyouli (Mogo)\n"];
+    [value appendString:@"  * @http://git.mogo.com\n  */\n\n\n"];
     return value;
 }
 
 - (void)setClassHeaderContent:(NSString *)content {
     if (content != nil) {
         NSMutableAttributedString * attrContent = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@%@",[content isEqualToString:kHeaderPlaceholdText] ? @"" : [self copyingRight],content]];
+        self.classContentString = attrContent.string;
         [_classField.textStorage setAttributedString:attrContent];
         [_classField.textStorage setFont:[NSFont systemFontOfSize:14]];
         [_classField.textStorage setForegroundColor:[NSColor colorWithRed:61.0 / 255.0 green:160.0 / 255.0 blue:151.0 / 255.0 alpha:1.0]];
@@ -262,7 +260,7 @@ typedef enum : NSUInteger {
         if (dict == nil || ![NSJSONSerialization isValidJSONObject:dict]) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored"-Wdeprecated-declarations"
-            NSAlert * alert = [NSAlert alertWithMessageText:@"WHC" defaultButton:@"确定" alternateButton:nil otherButton:nil informativeTextWithFormat:@"未知数据格式无法解析(请提供json字符串或者dictionary字符串)"];
+            NSAlert * alert = [NSAlert alertWithMessageText:@"MG" defaultButton:@"确定" alternateButton:nil otherButton:nil informativeTextWithFormat:@"未知数据格式无法解析(请提供json字符串或者dictionary字符串)"];
             [alert runModal];
 #pragma clang diagnostic pop
             return;
@@ -327,7 +325,7 @@ typedef enum : NSUInteger {
     }else{
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored"-Wdeprecated-declarations"
-        NSAlert * alert = [NSAlert alertWithMessageText:@"WHC" defaultButton:@"确定" alternateButton:nil otherButton:nil informativeTextWithFormat:@"json或者xml数据不能为空"];
+        NSAlert * alert = [NSAlert alertWithMessageText:@"MG" defaultButton:@"确定" alternateButton:nil otherButton:nil informativeTextWithFormat:@"json或者xml数据不能为空"];
         [alert runModal];
 #pragma clang diagnostic pop
     }

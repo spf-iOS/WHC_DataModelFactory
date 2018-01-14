@@ -32,6 +32,16 @@
 
 @interface ViewController : NSViewController
 
+@property (nonatomic , strong)IBOutlet  NSTextView  * jsonField;
+@property (nonatomic , strong)IBOutlet  NSTextView  * classField;
+@property (nonatomic , strong)IBOutlet  NSTextView  * classMField;
+
+@property (nonatomic , strong) NSMutableString *classString; //存类头文件内容
+@property (nonatomic , strong) NSMutableString *classMString; //存类源文件内容
+@property (nonatomic , strong) NSMutableString *classPrefixName;//类前缀
+
+
+@property (nonatomic , strong) NSString *classContentString;//类内容
 
 @end
 

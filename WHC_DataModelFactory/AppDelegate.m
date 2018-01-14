@@ -29,8 +29,11 @@
 // THE SOFTWARE.
 
 #import "AppDelegate.h"
+#import "ViewController.h"
 
-@interface AppDelegate ()
+@interface AppDelegate () {
+    NSWindow * keywindow;
+}
 
 @end
 
@@ -45,9 +48,29 @@
     if (!flag){
         for (NSWindow * window in sender.windows) {
             [window makeKeyAndOrderFront:self];
+            keywindow = window;
         }
     }
     return YES;
+}
+- (IBAction)saveDoc:(id)sender {
+     NSSavePanel*    panel = [NSSavePanel savePanel];
+    [panel setNameFieldStringValue:@"Untitle.onecodego"];
+    [panel setMessage:@"Choose the path to save the document"];
+    [panel setAllowsOtherFileTypes:YES];
+    [panel setAllowedFileTypes:@[@"onecodego"]];
+    [panel setExtensionHidden:YES];
+    [panel setCanCreateDirectories:YES];
+    [panel beginWithCompletionHandler:^(NSModalResponse result) {
+        if (result == NSFileHandlingPanelOKButton)
+        {
+            
+            ViewController *vc = (ViewController *)NSApplication.sharedApplication.keyWindow.contentViewController;
+            NSString *path = [[panel URL] path];
+            [vc.classContentString writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:nil];
+        }
+
+    }];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
