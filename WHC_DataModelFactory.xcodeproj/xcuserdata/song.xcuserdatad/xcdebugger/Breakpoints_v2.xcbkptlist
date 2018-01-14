@@ -10,28 +10,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "WHC_DataModelFactory/ViewController.m"
-            timestampString = "537591231.784225"
+            timestampString = "537595872.154296"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "177"
-            endingLineNumber = "177"
-            landmarkName = "-setClassSourceContent:"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "WHC_DataModelFactory/ViewController.m"
-            timestampString = "537591231.78473"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "167"
-            endingLineNumber = "167"
-            landmarkName = "-setClassHeaderContent:"
+            startingLineNumber = "239"
+            endingLineNumber = "239"
+            landmarkName = "-clickClassHeaderNameComboBox:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

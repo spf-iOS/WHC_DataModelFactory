@@ -55,7 +55,7 @@
 
 #define kSWHC_Prefix_Func @("class func prefix() -> String {\n    return \"%@\"\n}\n")
 
-#define kSWHC_CLASS @("\nclass %@: NSObject {\n\n%@\n}\n")
+#define kSWHC_CLASS @("\nclass %@%@: NSObject {\n\n%@\n}\n")
 #define kSexyJson_Class @("\nclass %@: SexyJson {\n%@\n}\n")
 #define kSexyJson_Struct @("\nstruct %@: SexyJson {\n%@\n}\n")
 
@@ -98,6 +98,7 @@ typedef enum : NSUInteger {
 
 @property (nonatomic , strong)IBOutlet  NSTextField  * classNameField;
 @property (nonatomic , strong)IBOutlet  NSComboBox       * comboBox;
+@property (nonatomic , strong)IBOutlet  NSComboBox       * headerNameComboBox;
 @property (nonatomic , strong)IBOutlet  NSButton       * codingCheckBox;
 @property (nonatomic , strong)IBOutlet  NSButton       * copyingCheckBox;
 @property (nonatomic , strong)IBOutlet  NSButton       * checkUpdateButton;
@@ -105,6 +106,10 @@ typedef enum : NSUInteger {
 @property (nonatomic , strong) NSArray * comboxTitles;
 @property (nonatomic , assign) BOOL isSwift;
 @property (nonatomic , assign) WHCModelType index;
+
+
+@property (nonatomic , copy) NSString *headerClassName;
+
 @end
 
 @implementation ViewController
@@ -135,6 +140,10 @@ typedef enum : NSUInteger {
     _index = _comboBox.indexOfSelectedItem;
     _isSwift = _index != 0;
     _classMHeightConstraint.constant = (self.isSwift ? 0 : 180);
+    
+    [_headerNameComboBox addItemsWithObjectValues: @[@"MG", @"MGB", @"MGR", @"MGP"]];
+    [_headerNameComboBox selectItemAtIndex:0];
+    _headerClassName = @"MG";
     
 }
 
@@ -222,6 +231,12 @@ typedef enum : NSUInteger {
     if (json && json.length > 0) {
         [self clickMakeButton:nil];
     }
+}
+
+
+- (IBAction)clickClassHeaderNameComboBox:(NSComboBox *)sender {
+    NSString *selectString = sender.objectValues[sender.indexOfSelectedItem];
+    _headerClassName = selectString;
 }
 
 - (IBAction)clickMakeButton:(NSButton*)sender{
@@ -315,7 +330,7 @@ typedef enum : NSUInteger {
                     }else if (_copyingCheckBox.state != 0) {
                         [_classString appendFormat:kSWHC_CopyingCLASS,className,classContent];
                     }else {
-                        [_classString appendFormat:kSWHC_CLASS,className,classContent];
+                        [_classString appendFormat:kSWHC_CLASS,_headerClassName,className,classContent];
                     }
                     break;
             }
@@ -425,7 +440,7 @@ typedef enum : NSUInteger {
                                 }else if (_copyingCheckBox.state != 0) {
                                     [_classString appendFormat:kSWHC_CopyingCLASS,className,classContent];
                                 }else {
-                                    [_classString appendFormat:kSWHC_CLASS,className,classContent];
+                                    [_classString appendFormat:kSWHC_CLASS,_headerClassName,className,classContent];
                                 }
                                 break;
                         }
@@ -493,7 +508,7 @@ typedef enum : NSUInteger {
                                 }
                             }
                         }else{
-                            [property appendFormat:kSWHC_PROPERTY,propertyName,[NSString stringWithFormat:@"[%@]",className]];
+                            [property appendFormat:kSWHC_PROPERTY,propertyName,[NSString stringWithFormat:@"[%@%@]",_headerClassName,className]];
                             switch (_index) {
                                 case SexyJson_class:
                                     if (_codingCheckBox.state != 0 && _copyingCheckBox.state != 0) {
@@ -521,7 +536,7 @@ typedef enum : NSUInteger {
                                     }else if (_copyingCheckBox.state != 0) {
                                         [_classString appendFormat:kSWHC_CopyingCLASS,className,classContent];
                                     }else {
-                                        [_classString appendFormat:kSWHC_CLASS,className,classContent];
+                                        [_classString appendFormat:kSWHC_CLASS,_headerClassName,className,classContent];
                                     }
                                     break;
                             }
@@ -530,8 +545,9 @@ typedef enum : NSUInteger {
                 }else if ([subObject isKindOfClass:[NSString class]]){
                     if(!self.isSwift){
                         [property appendFormat:kWHC_PROPERTY('c'),@"NSString",propertyName];
-                    }else{
-                        [property appendFormat:kSWHC_PROPERTY,propertyName,@"String"];
+                    }else{//Song 修改
+//                        [property appendFormat:kSWHC_PROPERTY,propertyName,@"String"];
+                        [property appendFormat:@"       var %@: %@ = \"\"\n",propertyName,@"String"];
                         [propertyMap appendFormat:kSexyJson_Map,propertyName,key];
                     }
                 }else if ([subObject isKindOfClass:[NSNumber class]]){
@@ -564,14 +580,16 @@ typedef enum : NSUInteger {
                         if(!self.isSwift){
                             [property appendFormat:kWHC_PROPERTY('c'),@"NSString",propertyName];
                         }else{
-                            [property appendFormat:kSWHC_PROPERTY,propertyName,@"String"];
+//                            [property appendFormat:kSWHC_PROPERTY,propertyName,@"String"];
+                            [property appendFormat:@"       var %@: %@ = \"\"\n",propertyName,@"String"];
                             [propertyMap appendFormat:kSexyJson_Map,propertyName,key];
                         }
                     }else if([subObject isKindOfClass:[NSNull class]]){
                         if(!self.isSwift){
                             [property appendFormat:kWHC_PROPERTY('c'),@"NSString",propertyName];
                         }else{
-                            [property appendFormat:kSWHC_PROPERTY,propertyName,@"String"];
+//                            [property appendFormat:kSWHC_PROPERTY,propertyName,@"String"];
+                            [property appendFormat:@"       var %@: %@ = \"\"\n",propertyName,@"String"];
                             [propertyMap appendFormat:kSexyJson_Map,propertyName,key];
                         }
                     }
