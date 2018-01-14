@@ -167,7 +167,7 @@ typedef enum : NSUInteger {
     [value appendString:@" Mogo\n  * Auto-generated: "];
     [value appendString:dateStr];
     [value appendString:@"\n  *\n"];
-    [value appendString:@"  * @author netyouli (Mogo)\n"];
+    [value appendString:@"  * @author 蘑菇小虾米 (Mogo)\n"];
     [value appendString:@"  * @http://git.mogo.com\n  */\n\n\n"];
     return value;
 }
